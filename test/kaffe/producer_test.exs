@@ -122,9 +122,9 @@ defmodule Kaffe.ProducerTest do
     end
 
     test "(key, value) produces a message to the first configured topic with specified client", %{producers: producers} do
-      Enum.each(producers, fn {config_key, %{client_name: client_name}} ->
+      Enum.each(producers, fn {config_key, %{client_name: client_name, topics: [topic | _]}} ->
         :ok = Producer.produce_sync_with_client(config_key, "key8", "value")
-        assert_receive [:produce_sync, ^client_name, "topic", 17, "key8", "value"]
+        assert_receive [:produce_sync, ^client_name, ^topic, 17, "key8", "value"]
       end)
     end
 

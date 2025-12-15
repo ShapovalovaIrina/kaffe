@@ -134,7 +134,7 @@ defmodule Kaffe.Producer do
   end
 
   @doc """
-  Synchronously produce the `messages_list` to `topic` using the specified client.
+  Synchronously produce the `messages_list` to `topic` using the specified client
 
   - `messages_list` must be a list of type `message()` or `message_object()`
   - `opts` may include the partition strategy to use,
@@ -142,8 +142,8 @@ defmodule Kaffe.Producer do
 
   Returns:
 
-  - `:ok` on successfully producing each message
-  - `{:error, reason}` for any error
+    * `:ok` on successfully producing each message
+    * `{:error, reason}` for any error
   """
   @spec produce_with_client(
           config_key :: config_key(),
@@ -156,7 +156,7 @@ defmodule Kaffe.Producer do
   end
 
   @doc """
-  Synchronously produce the `message_list` to `topic` using the specified client.
+  Synchronously produce the `message_list` to `topic` using the specified client
 
   `messages` must be a list of type `message()` or `message_object()`
 
@@ -167,8 +167,8 @@ defmodule Kaffe.Producer do
 
   Returns:
 
-       * `:ok` on successfully producing each message
-       * `{:error, reason}` for any error
+    * `:ok` on successfully producing each message
+    * `{:error, reason}` for any error
   """
   @spec produce_sync_with_client(
           config_key :: config_key(),
@@ -187,7 +187,7 @@ defmodule Kaffe.Producer do
   end
 
   @doc """
-  Synchronously produce the `message_list` to `topic`/`partition` using the specified client.
+  Synchronously produce the `message_list` to `topic`/`partition` using the specified client
 
   `message_list` must be a list of type `message()` or `message_object()`
 
@@ -195,8 +195,8 @@ defmodule Kaffe.Producer do
 
   Returns:
 
-       * `:ok` on successfully producing each message
-       * `{:error, reason}` for any error
+    * `:ok` on successfully producing each message
+    * `{:error, reason}` for any error
   """
   @spec produce_sync_with_client(
           config_key :: config_key(),
@@ -219,7 +219,7 @@ defmodule Kaffe.Producer do
   end
 
   @doc """
-  Synchronously produce the given `key`/`value` to the `topic`/`partition` using the specified client.
+  Synchronously produce the given `key`/`value` to the `topic`/`partition` using the specified client
 
   See `produce_sync/2` for returns.
   """
