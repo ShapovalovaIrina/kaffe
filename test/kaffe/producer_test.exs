@@ -3,7 +3,7 @@ defmodule Kaffe.ProducerTest do
 
   alias Kaffe.Producer
 
-  @default_client_config_key "producer_name"
+  @default_client_config_key :producer_name
   @default_client_name :kaffe_producer_client_producer_name
 
   setup do
@@ -97,25 +97,25 @@ defmodule Kaffe.ProducerTest do
     setup do
       current_producers_config = Application.get_env(:kaffe, :producers)
 
-      producers_config = %{
-        "producer_1" => [
+      producers_config = [
+        producer_1: [
           endpoints: [kafka1: 9092],
           topics: ["topic", "topic2"],
           partition_strategy: :md5
         ],
-        "producer_2" => [
+        producer_2: [
           endpoints: [kafka2: 9092],
           topics: ["topic"],
           partition_strategy: :md5
         ]
-      }
+      ]
 
       Application.put_env(:kaffe, :producers, producers_config)
       on_exit(fn -> Application.put_env(:kaffe, :producers, current_producers_config) end)
 
       producers =
         producers_config
-        |> Map.keys()
+        |> Keyword.keys()
         |> Enum.map(&{&1, Kaffe.Config.Producer.configuration(&1)})
 
       %{producers: producers}

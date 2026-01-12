@@ -25,8 +25,8 @@ config :kaffe,
       }
     ]
   ],
-  producers: %{
-    "producer_name" => [
+  producers: [
+    producer_name: [
       endpoints: [kafka: 9092],
       topics: ["kaffe-test"],
       sasl: %{
@@ -35,4 +35,4 @@ config :kaffe,
         password: System.get_env("KAFFE_PRODUCER_PASSWORD")
       }
     ]
-  }
+  ]

@@ -60,7 +60,7 @@ defmodule Kaffe.Config.Producer do
 
   require Logger
 
-  @default_producer_config_key "producer"
+  @default_producer_config_key :producer
 
   def configuration(config_key) do
     %{
@@ -141,33 +141,33 @@ defmodule Kaffe.Config.Producer do
   def config_get!(config_key, key) do
     :kaffe
     |> Application.get_env(:producers)
-    |> Map.fetch!(config_key)
+    |> Access.fetch!(config_key)
     |> Keyword.fetch!(key)
   end
 
   def config_get(config_key, key, default) do
     :kaffe
     |> Application.get_env(:producers)
-    |> Map.fetch!(config_key)
+    |> Access.fetch!(config_key)
     |> Keyword.get(key, default)
   end
 
   def list_config_keys do
     :kaffe
     |> Application.get_env(:producers)
-    |> Map.keys()
+    |> Enum.map(&elem(&1, 0))
   end
 
   @doc """
   Sets :kaffe, :producers application env if :kaffe, :producer is present.
 
   Provides backward compatibility between single producer and multiple producers.
-  `#{@default_producer_config_key}` config key is used for multiple producers config.
+  `:#{@default_producer_config_key}` config key is used for multiple producers config.
   """
   @spec maybe_set_producers_env!() :: :ok
   def maybe_set_producers_env! do
     single_config = Application.get_env(:kaffe, :producer) || []
-    multiple_config = Application.get_env(:kaffe, :producers) || %{}
+    multiple_config = Application.get_env(:kaffe, :producers) || []
 
     if !Enum.empty?(single_config) and !Enum.empty?(multiple_config) do
       raise("""
@@ -178,7 +178,7 @@ defmodule Kaffe.Config.Producer do
     end
 
     if !Enum.empty?(single_config) and Enum.empty?(multiple_config) do
-      multiple_config = %{@default_producer_config_key => single_config}
+      multiple_config = [{@default_producer_config_key, single_config}]
 
       Logger.info("""
       Configuration for single producer is specified in :kaffe, :producer.

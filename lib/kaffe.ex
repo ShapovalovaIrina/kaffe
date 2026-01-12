@@ -18,7 +18,7 @@ defmodule Kaffe do
 
     if producers = Application.get_env(:kaffe, :producers) do
       producers
-      |> Map.keys()
+      |> Enum.map(&elem(&1, 0))
       |> Enum.each(fn config_key ->
         Logger.debug("event#start_producer_client=#{__MODULE__}_#{config_key}")
         config = Kaffe.Config.Producer.configuration(config_key)

@@ -1,7 +1,7 @@
 defmodule Kaffe.Config.ProducerTest do
   use ExUnit.Case, async: true
 
-  @default_producer "producer_name"
+  @default_producer :producer_name
 
   describe "configuration/0" do
     test "correct settings are extracted" do
@@ -75,19 +75,19 @@ defmodule Kaffe.Config.ProducerTest do
     test "correct settings are extracted for different producer clients" do
       config = Application.get_env(:kaffe, :producers)
 
-      multiple_producers_config = %{
-        "producer_1" => [
+      multiple_producers_config = [
+        producer_1: [
           endpoints: [kafka1: 9092],
           topics: ["kaffe-test-1"],
           sasl: %{mechanism: :plain, login: "Alice", password: "ecilA"},
           ssl: true
         ],
-        "producer_2" => [
+        producer_2: [
           endpoints: [kafka2: 9092],
           topics: ["kaffe-test-2"],
           compression: :zstd
         ]
-      }
+      ]
 
       Application.put_env(:kaffe, :producers, multiple_producers_config)
 
@@ -141,8 +141,28 @@ defmodule Kaffe.Config.ProducerTest do
         Application.put_env(:kaffe, :producers, config)
       end)
 
-      assert Kaffe.Config.Producer.configuration("producer_1") == expected_producer_config_1
-      assert Kaffe.Config.Producer.configuration("producer_2") == expected_producer_config_2
+      assert Kaffe.Config.Producer.configuration(:producer_1) == expected_producer_config_1
+      assert Kaffe.Config.Producer.configuration(:producer_2) == expected_producer_config_2
+    end
+
+    test "the same settings are extracted from map and keyword configuration" do
+      keyword_config = Application.get_env(:kaffe, :producers)
+      assert is_list(keyword_config)
+      assert keyword_config != []
+
+      producer_config_from_keyword = Kaffe.Config.Producer.configuration(@default_producer)
+
+      map_config = Map.new(keyword_config)
+
+      Application.put_env(:kaffe, :producers, map_config)
+
+      on_exit(fn ->
+        Application.put_env(:kaffe, :producers, keyword_config)
+      end)
+
+      producer_config_from_map = Kaffe.Config.Producer.configuration(@default_producer)
+
+      assert producer_config_from_keyword == producer_config_from_map
     end
   end
 
@@ -163,7 +183,8 @@ defmodule Kaffe.Config.ProducerTest do
 
     test "returns :ok if producers are configured with the :producers key" do
       producers_config = Application.get_env(:kaffe, :producers)
-      assert is_map(producers_config)
+      assert is_list(producers_config)
+      assert producers_config != []
 
       Application.delete_env(:kaffe, :producer)
 
@@ -175,7 +196,7 @@ defmodule Kaffe.Config.ProducerTest do
 
     test "returns :ok and sets :kaffe, :producers if producer is configured with the :producer key" do
       producers_config = Application.get_env(:kaffe, :producers)
-      producer_config = producers_config |> Map.values() |> List.first()
+      producer_config = producers_config |> Keyword.values() |> List.first()
 
       Application.delete_env(:kaffe, :producers)
       Application.put_env(:kaffe, :producer, producer_config)
@@ -188,12 +209,12 @@ defmodule Kaffe.Config.ProducerTest do
       assert :ok == Kaffe.Config.Producer.maybe_set_producers_env!()
 
       assert Application.get_env(:kaffe, :producer) == producer_config
-      assert Application.get_env(:kaffe, :producers) == %{"producer" => producer_config}
+      assert Application.get_env(:kaffe, :producers) == [producer: producer_config]
     end
 
     test "logs message if :kaffe, :producers was set with configuration from :kaffe, :producer" do
       producers_config = Application.get_env(:kaffe, :producers)
-      producer_config = producers_config |> Map.values() |> List.first()
+      producer_config = producers_config |> Keyword.values() |> List.first()
 
       Application.delete_env(:kaffe, :producers)
       Application.put_env(:kaffe, :producer, producer_config)
@@ -214,13 +235,13 @@ defmodule Kaffe.Config.ProducerTest do
              To ensure backward compatibility :kaffe, :producers was set to a map \
              with default producer name as the key and single producer config as the value:
 
-             config :kaffe, producers: %{\"producer\" => #{inspect(producer_config)}}
+             config :kaffe, producers: [producer: #{inspect(producer_config)}]
              """
     end
 
     test "raises error is both :producer and :producers keys are present" do
       producers_config = Application.get_env(:kaffe, :producers)
-      producer_config = producers_config |> Map.values() |> List.first()
+      producer_config = producers_config |> Keyword.values() |> List.first()
 
       Application.put_env(:kaffe, :producer, producer_config)
 
